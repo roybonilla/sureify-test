@@ -17,6 +17,11 @@ export interface Pricer {
 type SizeOption = 'small' | 'medium' | 'large';
 type CreamerOption = 'none' | 'dairy' | 'non-dairy';
 
+type SelectionState = {
+  size?: SizeOption;
+  creamer?: CreamerOption;
+};
+
 // /** Immutable size pricing record — it is frozen to avoid modification at runtime. */
 const SIZE_PRICE_MAP: Record<SizeOption, Price> = Object.freeze({
   small: 1,
@@ -31,10 +36,9 @@ const CREAMER_PRICE_MAP: Record<CreamerOption, Price> = Object.freeze({
   'non-dairy': 0.5,
 });
 
-type SelectionState = {
-  size?: SizeOption;
-  creamer?: CreamerOption;
-};
+function isSizeOption(option: Option): option is SizeOption {
+  return option === 'small' || option === 'medium' || option === 'large';
+}
 
 /**
 * A new pricer is created for each coffee being purchased.
@@ -43,10 +47,12 @@ export const createPricer = (): Pricer => {
   let selection: SelectionState = {};
 
   return (category: Category, option: Option): Price => {
-    selection =
-      category === 'size'
-        ? { ...selection, size: option as SizeOption }
-        : { ...selection, creamer: option as CreamerOption };
+    if (category === 'size' && isSizeOption(option)) {
+      selection = { ...selection, size: option };
+    }
+    if (category === 'creamer' && !isSizeOption(option)) {
+      selection = { ...selection, creamer: option };
+    }
 
     const sizePrice = selection.size ? SIZE_PRICE_MAP[selection.size] : 0;
     const creamerPrice = selection.creamer ? CREAMER_PRICE_MAP[selection.creamer] : 0;
