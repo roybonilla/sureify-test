@@ -14,40 +14,43 @@ export interface Pricer {
   (category: Category, option: Option): Price
 }
 
+type SizeOption = 'small' | 'medium' | 'large';
+type CreamerOption = 'none' | 'dairy' | 'non-dairy';
+
 // /** Immutable size pricing record — it is frozen to avoid modification at runtime. */
-const SIZE_PRICES: Record<'small' | 'medium' | 'large', Price> = Object.freeze({
+const SIZE_PRICE_MAP: Record<SizeOption, Price> = Object.freeze({
   small: 1,
   medium: 1.5,
   large: 2,
 });
 
 // /** Immutable creamer pricing record — it is frozen to avoid modification at runtime. */
-const CREAMER_PRICES: Record<'none' | 'dairy' | 'non-dairy', Price> = Object.freeze({
+const CREAMER_PRICE_MAP: Record<CreamerOption, Price> = Object.freeze({
   none: 0,
   dairy: 0.25,
   'non-dairy': 0.5,
 });
 
 type SelectionState = {
-  size?: 'small' | 'medium' | 'large';
-  creamer?: 'none' | 'dairy' | 'non-dairy';
+  size?: SizeOption;
+  creamer?: CreamerOption;
 };
 
 /**
 * A new pricer is created for each coffee being purchased.
 */
 export const createPricer = (): Pricer => {
-  let state: SelectionState = {};
+  let selection: SelectionState = {};
 
   return (category: Category, option: Option): Price => {
-    state =
+    selection =
       category === 'size'
-        ? { ...state, size: option as SelectionState['size'] }
-        : { ...state, creamer: option as SelectionState['creamer'] };
+        ? { ...selection, size: option as SelectionState['size'] }
+        : { ...selection, creamer: option as SelectionState['creamer'] };
 
-    const sizePrice = state.size ? SIZE_PRICES[state.size] : 0;
-    const creamerPrice = state.creamer ? CREAMER_PRICES[state.creamer] : 0;
+    const sizePrice = selection.size ? SIZE_PRICE_MAP[selection.size] : 0;
+    const creamerPrice = selection.creamer ? CREAMER_PRICE_MAP[selection.creamer] : 0;
 
     return sizePrice + creamerPrice;
   };
-}
+};
