@@ -45,8 +45,8 @@ export const createPricer = (): Pricer => {
   return (category: Category, option: Option): Price => {
     selection =
       category === 'size'
-        ? { ...selection, size: option as SelectionState['size'] }
-        : { ...selection, creamer: option as SelectionState['creamer'] };
+        ? { ...selection, size: option as SizeOption }
+        : { ...selection, creamer: option as CreamerOption };
 
     const sizePrice = selection.size ? SIZE_PRICE_MAP[selection.size] : 0;
     const creamerPrice = selection.creamer ? CREAMER_PRICE_MAP[selection.creamer] : 0;
